@@ -1,0 +1,34 @@
+.form-container {
+    border: none;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    background: #fff;
+    border-radius: 15px;
+}
+
+.form-top-box-element {
+    background: #AA336A;
+    width: 30%;
+    height: 10px;
+    margin: 20px 0;
+}
+
+input[type="checkbox"]:checked {
+    border-color: #AA336A;
+    background-color: #AA336A;
+}
+
+option:hover {
+    background: #AA336A;
+    color: #fff;
+}
+
+form>div {
+    padding: 8px 0;
+}
+
+button {
+    margin-top: 30px;
+    background: #AA336A !important;
+    border: #AA336A !important;
+    width: 100%;
+}

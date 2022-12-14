@@ -4,23 +4,27 @@ import FormInput from "./FormInput";
 import FormPhoneField from "./FormPhoneField";
 import countryData from "../assets/countryData.json"
 import Alert from "./Alert";
+import "./Form.css"
+import FormSelect from "./FormSelect";
+import FormPassword from "./FormPasswordInput";
 
 export default function Form() {
 
     let [userData, setUserData] = useState({
         name: '',
         email: '',
+        countryCode: null,
         phone: '',
         company: '',
         country: '',
         marketplaces: [],
         password: ''
     })
-
+    let [flags, setFlags] = useState({})
     let [passwordToggle, setPasswordToggle] = useState('password');
     let [confPasswordToggle, setConfPasswordToggle] = useState('password');
     let [confPassword, setConfPassword] = useState('');
-    let [flags, setFlags] = useState({ tnc: true });
+    let [tncCheck, setTncCheck] = useState(false);
 
     const marketplaces = ["Amazon", "Flipkart", "Shopify", "Ebay", "Noon", "Walmart"];
 
@@ -30,12 +34,21 @@ export default function Form() {
         let value = e.currentTarget.value;
         let type = e.currentTarget.type;
 
+        validateForm(name, value);
+
         if (name == 'T&C') {
-            setFlags({ ...flags, tnc: !e.currentTarget.checked });
+            setTncCheck(e.currentTarget.checked);
+            return;
+        }
+
+        if (name == 'confPassword') {
+            setConfPassword(value);
+            return;
         }
 
         if (type == 'checkbox') {
             let arr = userData[name];
+            console.log(e.currentTarget)
             if (e.currentTarget.checked)
                 arr.push(value);
             else
@@ -45,6 +58,98 @@ export default function Form() {
 
         setUserData({ ...userData, [name]: value });
     }
+
+    //form validation
+    const validateForm = (name, value) => {
+        let tempFlags = flags;
+        switch (name) {
+            case "name": {
+                tempFlags[name] = validateName(value);
+            }
+                break;
+            case "email": {
+                tempFlags[name] = validateEmail(value);
+            }
+                break;
+            case "countryCode": {
+                tempFlags[name] = validateCountryCode(value);
+            }
+                break;
+            case "phone": {
+                tempFlags[name] = validatePhone(value);
+            }
+                break;
+            case "company": {
+                tempFlags[name] = validateCompany(value);
+            }
+                break;
+            case "password": {
+                tempFlags[name] = validatePassword(value);
+            }
+                break;
+            case "confPassword": {
+                tempFlags[name] = comparePassword(userData.password, value);
+            }
+                break;
+        }
+        setFlags(tempFlags);
+    }
+
+    const validateName = (name) => {
+        if (name.length < 3 || name.length > 30) {
+            return false
+        }
+        return true;
+    }
+
+    const validateEmail = (email) => {
+        if (!String(email)
+            .toLowerCase()
+            .match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
+        ) {
+            return false;
+        }
+        return true;
+    }
+
+    const validateCountryCode = (code) => {
+        if (code == null)
+            return false;
+        if (code.length > 3 || code.length < 1) {
+            return false;
+        }
+        return true;
+    }
+
+    const validatePhone = (phone) => {
+        if (phone.length != 10) {
+            return false;
+        }
+        return true;
+    }
+
+    const validateCompany = (company) => {
+        if (company.length < 1 || company.length > 30) {
+            return false;
+        }
+        return true;
+    }
+
+    const validatePassword = (password) => {
+        if (password.length < 8) {
+            return false;
+        }
+        return true;
+    }
+
+    const comparePassword = (password, confPassword) => {
+        console.log(password + confPassword);
+        if (password != confPassword) {
+            return false;
+        }
+        return true;
+    }
+
 
     const handlePasswordToggle = () => {
         if (passwordToggle === 'password') {
@@ -62,96 +167,92 @@ export default function Form() {
         }
     }
 
-    const handleConfPassword = (e) => {
-        const value = e.currentTarget.value;
-        if (userData.password != value) {
-            console.log(userData.password)
-            console.log(value);
-            setFlags({ ...flags, confPassword: true });
-        } else {
-            setFlags({ ...flags, confPassword: false });
-        }
-
-        setConfPassword(value);
-    }
-
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log(userData);
+
         alert(JSON.stringify(userData));
     }
 
     return (
-        <form onSubmit={handleSubmit}>
-            <FormInput
-                fieldData={{
-                    inputType: 'text',
-                    fieldName: 'name',
-                    fieldLabel: 'Full Name',
-                    fieldDesc: '',
-                    required: true
-                }}
+        <div className="form-container p-4 my-4">
+            <div className="form-top-box-element"></div>
+            <form className="mt-2" onSubmit={handleSubmit}>
+                <FormInput
+                    fieldData={{
+                        inputType: 'text',
+                        fieldName: 'name',
+                        fieldLabel: 'Full Name',
+                        fieldDesc: '',
+                        flags: flags
+                    }}
 
-                handleFieldChange={handleFieldChange}
-            />
-            <FormInput
-                fieldData={{
-                    inputType: 'email',
-                    fieldName: 'email',
-                    fieldLabel: 'Email Address',
-                    fieldDesc: '',
-                    required: true
-                }}
+                    handleFieldChange={handleFieldChange}
+                />
+                <FormInput
+                    fieldData={{
+                        inputType: 'email',
+                        fieldName: 'email',
+                        fieldLabel: 'Email Address',
+                        fieldDesc: '',
+                        flags: flags
+                    }}
 
-                handleFieldChange={handleFieldChange}
-            />
+                    handleFieldChange={handleFieldChange}
+                />
 
-            <FormPhoneField handleFieldChange={handleFieldChange} />
+                <FormPhoneField handleFieldChange={handleFieldChange} flags={flags} />
 
-            <FormInput
-                fieldData={{
-                    inputType: 'text',
-                    fieldName: 'company',
-                    fieldLabel: 'Company Name',
-                    fieldDesc: '',
-                    required: true
-                }}
+                <FormInput
+                    fieldData={{
+                        inputType: 'text',
+                        fieldName: 'company',
+                        fieldLabel: 'Company Name',
+                        fieldDesc: '',
+                        flags: flags
+                    }}
 
-                handleFieldChange={handleFieldChange}
-            />
+                    handleFieldChange={handleFieldChange}
+                />
 
-            <label htmlFor="country" className="form-label">Country Name</label>
-            <select className="form-select" id="country" name="country" defaultValue={'default'} onChange={handleFieldChange} required>
-                <option value="default" disabled>Choose your country</option>
-                {countryData.map((country, i) => <option key={i} value={country.value}> {country.text}</option>)}
-            </select>
+                <FormSelect handleFieldChange={handleFieldChange} countryData={countryData} />
 
-            <div className="marketplace-check-group">
-                <label className="form-check-label">Marketplaces Covered</label>
-                {marketplaces.map((marketplace, i) => <FormCheckBox key={i} handleFieldChange={handleFieldChange} fieldData={{ name: marketplace, label: marketplace, value: marketplace }} />)}
-            </div>
-            
-            <div>
-                <label htmlFor="password" className="form-label">Create Password</label>
-                <div className="input-group">
-                    <input type={passwordToggle} className="form-control" id="password" name="password" onChange={handleFieldChange} required/>
-                    <span className="input-group-text" onClick={handlePasswordToggle}>*</span>
+                <div className="marketplace-check-group">
+                    <label className="form-check-label">Marketplaces Covered</label>
+                    {marketplaces.map((marketplace, i) => <FormCheckBox key={i} handleFieldChange={handleFieldChange} fieldData={{ name: "marketplaces", label: marketplace, value: marketplace }} />)}
                 </div>
-            </div>
 
-            {flags.confPassword ? <Alert message={"passwords are not matching"} /> : null}
+                <FormPassword
+                    fieldData={{
+                        fieldName: 'password',
+                        fieldLabel: 'Create Password',
+                        fieldDesc: '',
+                        flags: flags
+                    }}
 
-            <div>
-                <label htmlFor="confPassword" className="form-label">Confirm Password</label>
-                <div className="input-group">
-                    <input type={confPasswordToggle} className="form-control" id="confPassword" onChange={handleConfPassword} required/>
-                    <span className="input-group-text" onClick={handleConfPasswordToggle}>*</span>
-                </div>
-            </div>
+                    handleFieldChange={handleFieldChange}
+                    handlePasswordToggle={handlePasswordToggle}
+                    passwordToggle={passwordToggle}
+                />
 
-            <FormCheckBox fieldData={{ name: "T&C", label: "I agree to terms and conditions", value: "T&C", required: true }} />
+                {(flags.confPassword != undefined && !flags.confPassword) ? <Alert message={"passwords are not matching"} /> : null}
 
-            <button type="submit" className="btn btn-primary">Submit</button>
-        </form>
+                <FormPassword
+                    fieldData={{
+                        fieldName: 'confPassword',
+                        fieldLabel: 'Confirm Password',
+                        fieldDesc: '',
+                        flags: flags
+                    }}
+
+                    handleFieldChange={handleFieldChange}
+                    handlePasswordToggle={handleConfPasswordToggle}
+                    passwordToggle={confPasswordToggle}
+                />
+
+                <FormCheckBox fieldData={{ name: "T&C", label: "I agree to terms and conditions", value: "T&C", required: false }} handleFieldChange={handleFieldChange} />
+
+                <button type="submit" className="btn btn-primary" disabled={!tncCheck}>Submit</button>
+            </form>
+        </div>
     )
 }

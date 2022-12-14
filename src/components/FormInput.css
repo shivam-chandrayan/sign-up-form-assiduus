@@ -1,0 +1,15 @@
+.form-input {
+    /* margin: 16px 0; */
+}
+
+.error input {
+    border: 1px solid #ee1b25;
+}
+
+.success input {
+    border: 1px solid #229e3e;
+}
+
+.form-input input:active {
+    border: 1px solid #090e2c;
+}
