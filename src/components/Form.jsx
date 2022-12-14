@@ -169,12 +169,11 @@ export default function Form() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
         alert(JSON.stringify(userData));
     }
 
     return (
-        <div className="form-container p-4 my-4">
+        <div className="form-container p-4 my-md-4">
             <div className="form-top-box-element"></div>
             <form className="mt-2" onSubmit={handleSubmit}>
                 <FormInput
